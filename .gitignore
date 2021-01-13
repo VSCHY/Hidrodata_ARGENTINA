@@ -3,4 +3,5 @@ Example/OUTPUT/*
 Example/geckodriver.log
 shapefile/wmobb_basins*
 shapefile/wmo_basins_shp.zip
+*.pyc
 
