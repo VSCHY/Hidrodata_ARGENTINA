@@ -16,10 +16,8 @@ dfile = "../shapefile/wmobb_basins.shp"
 if not os.path.exists(dfile):
     print("Please enter a valid direction for wmobb_basins.shp")
     print("Can be downloaded from ftp://ftp.bafg.de/pub/REFERATE/GRDC/wmo_basins_shp.zip")
-    sys.exit()
-
-    
-WMO = WMOREG(dfile)
+    sys.exit()   
+#WMO = WMOREG(dfile)
 
 ############################
 
@@ -89,7 +87,11 @@ def get_data(d, dfmeta):
 # Brazilian and Argentinian station are only from 1900
 # Fin the index to adjust
 
-def savetonetcdf(dncout, dir_grdc, dmetafile):
+def savetonetcdf(dncout, dir_grdc, dmetafile, dischargeFilePath):
+    WMO = WMOREG(dfile)
+    #
+    #
+
     dfmeta = getdfmeta(dmetafile)
     
     date = np.array([datetime(1807+i//12,i%12+1,15) for i in range(0,214*12)])
@@ -101,12 +103,12 @@ def savetonetcdf(dncout, dir_grdc, dmetafile):
 
     FillValue = 1e+20
 
-    with Dataset(orig+"Argentina_Discharge_AS2020.nc", "w") as foo, Dataset(dir_grdc, "r") as grdc:
+    with Dataset(dncout, "w") as foo, Dataset(dir_grdc, "r") as grdc:
         foo.history = "Created " + datetime.today().strftime('%Y-%m-%d')
         # Copy dimension from GRDC
         for dimn in grdc.dimensions:
           if dimn == "stations":
-            numst = len(glob.glob(dire))
+            numst = len(glob.glob(dischargeFilePath))
             foo.createDimension(dimn, numst) # remplire
           elif dimn == "time":
             foo.createDimension(dimn, len(date))
@@ -129,7 +131,7 @@ def savetonetcdf(dncout, dir_grdc, dmetafile):
         foo.variables["time"][:] = date_nc[:]
         foo.variables["country"][:] = stringtochar(np.array("AR", dtype ="S60"))[:]
   
-        L = glob.glob(dire)
+        L = glob.glob(dischargeFilePath)
         DATA = [get_data(d, dfmeta) for d in L] 
         DStation = [get_info_st(A) for df,A in DATA] 
         WMO = np.array(
