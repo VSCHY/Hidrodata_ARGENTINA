@@ -5,7 +5,7 @@ Download the hydrological data from Argentina.
 Create an environment to use the package : 
 
 ```bash
-conda create -n HidroARG -c conda-forge netcdf4 geckodriver selenium pandas cartopy
+conda create -n HidroARG -c conda-forge netcdf4 geckodriver selenium pandas cartopy openpyxl
 ```
 Activate the environment to run the script : 
 
