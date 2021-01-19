@@ -10,6 +10,7 @@ from datetime import datetime
 import unicodedata
 import sys
 from get_WMO import WMOREG
+import string
 #
 dfile = "../shapefile/wmobb_basins.shp"
 #../../WMO_basins/Originals/wmo_basins_shp/wmobb_basins.shp
@@ -31,24 +32,25 @@ L_varstr = ["river", "name", "LastUpdate", "FileDate"]
 L_varfloat = ["altitude","area","lat","lon"]
 
 def txt_without_accent(text):
-    txt_out = text.replace(" ", "_")
+    txt_out = string.capwords(text)
+    txt_out = txt_out.replace(" ", "_")
     txt_out = unicodedata.normalize('NFD', txt_out).encode('ascii', 'ignore')
-    txt_out = txt_out.decode('utf-8')
-    #txt_out = text.replace("_", " ")
+    txt_out = txt_out.decode('utf-8', errors = "ignore")
     return txt_out
 
 def get_info_st(A):
     D = {}
-    print(A.loc['Lugar'])#.values
+    print(A.loc['Lugar'])#.values 
     D["name"] = txt_without_accent(A.loc['Lugar']).replace("_"," ")
     D["altitude"] = np.nan
+    #
     D["river"] = txt_without_accent(A.loc['Rio']).replace("_"," ")
     D["area"] = A.loc['Area']
     D["lat"] = -1*A.loc['Latitud']
     D["lon"] = -1*A.loc['Longitud']
     D["country"] = "AR"
     D["LastUpdate"] = str.encode(A.loc["Registro"][:10])
-    D["FileDate"] = "06-01-2021"
+    D["FileDate"] = str.encode("06-01-2021")
     return D
 
 def get_data(d, dfmeta):
@@ -117,9 +119,9 @@ def savetonetcdf(dncout, dir_grdc, dmetafile, dischargeFilePath):
       
         # Copy variables
         for varn in grdc.variables:
-          if varn not in ["calculatedhydro", "mergedhydro", "flags","alt_hydrograph", "alternative_index"]:
+          if varn not in ["calculatedhydro", "flags","alt_hydrograph", "alternative_index"]:
             ovar = grdc.variables[varn]
-          if varn in ["time", "hydrographs",  ]:
+          if varn in ["time", "hydrographs", "mergedhydro" ]:
             newvar = foo.createVariable(varn, ovar.dtype, ovar.dimensions, zlib = True, fill_value=FillValue)
           else:      
             newvar = foo.createVariable(varn, ovar.dtype, ovar.dimensions,       zlib = True)
