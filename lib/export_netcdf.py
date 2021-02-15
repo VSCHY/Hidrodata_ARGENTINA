@@ -98,6 +98,7 @@ def savetonetcdf(dncout, dir_grdc, dmetafile, dischargeFilePath):
     
     date = np.array([datetime(1807+i//12,i%12+1,15) for i in range(0,214*12)])
     date_nc = [date2num(d,"seconds since 1807-01-15 00:00:00", calendar = "gregorian") for d in date]
+    time_unit = "seconds since 1807-01-15 00:00:00"
 
     y = np.array([d.year for d in date])
     m = np.array([d.month for d in date])
@@ -123,12 +124,21 @@ def savetonetcdf(dncout, dir_grdc, dmetafile, dischargeFilePath):
             ovar = grdc.variables[varn]
           if varn in ["time", "hydrographs", "mergedhydro" ]:
             newvar = foo.createVariable(varn, ovar.dtype, ovar.dimensions, zlib = True, fill_value=FillValue)
+          elif varn == "area":
+             foo.createVariable(varn, ovar.dtype, ovar.dimensions,zlib = True, fill_value=-999)
           else:      
             newvar = foo.createVariable(varn, ovar.dtype, ovar.dimensions,       zlib = True)
           for attrn in ovar.ncattrs():
             if attrn != "_FillValue":
-              attrv = ovar.getncattr(attrn)
-              newvar.setncattr(attrn,attrv)
+              if varn == "time":
+                if attrn == "units":
+                  newvar.setncattr(attrn,time_unit)
+                else:
+                  attrv = ovar.getncattr(attrn)
+                  newvar.setncattr(attrn,attrv)
+              else:
+                attrv = ovar.getncattr(attrn)
+                newvar.setncattr(attrn,attrv)
       
         foo.variables["time"][:] = date_nc[:]
         foo.variables["country"][:] = stringtochar(np.array("AR", dtype ="S60"))[:]
@@ -160,11 +170,14 @@ def savetonetcdf(dncout, dir_grdc, dmetafile, dischargeFilePath):
             foo.variables[varn][k,:] = stringtochar(np.array(D[varn], dtype ="S60"))[:]
           # NUMERICAL VARIABLE
           for varn in L_varfloat:
-            foo.variables[varn][k] = D[varn]
+            if (varn == "area") and (D[varn]<0):
+               foo.variables[varn][k] = -999
+            else:
+               foo.variables[varn][k] = D[varn]
           # CODE
           foo.variables["number"][k] = stcode
       
-          for varn in ["hydrographs"]:
+          for varn in ["hydrographs", "mergedhydro"]:
             data = np.full(len(date_nc), FillValue)
             hydro = df.to_numpy()
             

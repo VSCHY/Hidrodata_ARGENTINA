@@ -15,7 +15,7 @@ dir_out = "/home/anthony/Documents/LOCAL/DISCHARGE_DATABASE_V1/BDHI/Hidrodata_AR
 """
 DOWNLOAD THE FILES
 """
-
+"""
 if not os.path.exists(dir_out):
     os.mkdir(dir_out)
 else:
@@ -37,7 +37,7 @@ website.metaStationsDataframe(
 # Download the files
 for index in website.subselection.keys():
    website.download_st(index)
-
+"""
 ######################
 
 """
@@ -49,7 +49,7 @@ dischargeFilePath = "./OUTPUT/*xlsx"
 
 # GRDC file adjust depending on the repertory
 orig = "../../../Originals/"
-dir_grdc = orig + "GRDC_Monthly_Jan20_v1.nc"
+dir_grdc = orig + "GRDC_Monthly_Jan20_v1.1.nc"
 
 
 if not os.path.exists(dir_grdc):
